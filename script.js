@@ -1,50 +1,42 @@
-const _data = {
-    target: "https://www.taskm4u.com/#/HangTask"
+const links = {
+    login: "https://www.taskm4u.com/#/login",
+    hang: "https://www.taskm4u.com/#/HangTask"
 };
 
-let balance = parseFloat(localStorage.getItem('my_balance')) || 0;
+let balance = parseFloat(localStorage.getItem('user_points')) || 0;
 
-function updateDisplay() {
-    document.getElementById('mainPoints').innerText = balance.toFixed(2) + " PT";
-    localStorage.setItem('my_balance', balance);
+function copyData(val) {
+    navigator.clipboard.writeText(val).then(() => alert("কপি হয়েছে!"));
 }
 
-function openWork() {
-    document.getElementById('view-main').classList.remove('active-view');
-    document.getElementById('view-task').classList.add('active-view');
-    document.getElementById('taskIframe').src = _data.target;
+// পরবর্তী ধাপে (HangTask) যাওয়ার ফাংশন
+function openHang() {
+    document.getElementById('view-login').style.display = 'none';
+    document.getElementById('view-hang').style.display = 'flex';
+    document.getElementById('hangIframe').src = links.hang;
 }
 
-function copyData(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        alert("কপি হয়েছে! এবার পেস্ট করুন।");
-    });
-}
-
-function verifyNow() {
+// ফাইনাল ভেরিফাই
+function verifyFinal() {
     const btn = document.getElementById('verifyBtn');
-    btn.innerText = "Verifying Connection...";
-    btn.style.background = "#555";
+    btn.innerText = "Checking Node...";
+    btn.style.background = "#444";
     btn.disabled = true;
 
-    // ৫ সেকেন্ডের ভেরিফিকেশন প্রসেস
     setTimeout(() => {
-        alert("সফলভাবে যুক্ত হয়েছে! এখন থেকে পয়েন্ট জমা হবে।");
-        document.getElementById('view-task').classList.remove('active-view');
-        document.getElementById('view-main').classList.add('active-view');
-        startEarning();
-    }, 5000);
+        alert("Verification Success!");
+        document.getElementById('view-hang').style.display = 'none';
+        document.getElementById('view-final').style.display = 'flex';
+        startMining();
+    }, 4000);
 }
 
-function startEarning() {
-    document.getElementById('status').innerText = "● Mining Active (30 PT/hr)";
-    document.getElementById('status').style.color = "#25D366";
-
+function startMining() {
     setInterval(() => {
-        balance += (30 / 3600); // প্রতি সেকেন্ডে পয়েন্ট আপডেট
-        updateDisplay();
+        balance += (30 / 3600);
+        document.getElementById('displayPts').innerText = balance.toFixed(2) + " PT";
+        localStorage.setItem('user_points', balance);
     }, 1000);
 }
 
-// শুরুতে ব্যালেন্স আপডেট
-updateDisplay();
+document.getElementById('displayPts').innerText = balance.toFixed(2) + " PT";
