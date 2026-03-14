@@ -10,114 +10,104 @@
         * { box-sizing: border-box; }
         body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); color: white; font-family: sans-serif; overflow: hidden; }
 
-        /* ১. লোডিং স্ক্রিন স্টাইল */
-        #loading-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg); z-index: 5000; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; text-align: center;
-        }
-        .loader { border: 4px solid #1f2c34; border-top: 4px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* ২. লোগো মাস্ক (কালো স্টিকার) */
+        /* লোগো মাস্ক (কালো স্টিকার) */
         .logo-mask {
-            position: absolute; top: 0; left: 0; width: 100%; height: 60px; /* লোগোর সাইজ অনুযায়ী অ্যাডজাস্ট করুন */
-            background: black; z-index: 200; display: flex; align-items: center; justify-content: center;
-            font-size: 14px; color: var(--primary); font-weight: bold; border-bottom: 1px solid #333;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100px;
+            background: black; z-index: 500; display: flex; align-items: center; justify-content: center;
+            font-size: 16px; color: var(--primary); font-weight: bold; border-bottom: 2px solid #333;
         }
 
-        /* ৩. অ্যাপ স্ট্রাকচার */
-        .app-view { display: none; height: 100vh; flex-direction: column; }
+        .app-view { display: none; height: 100vh; flex-direction: column; position: relative; }
         .active { display: flex; }
 
-        .iframe-container { flex-grow: 1; position: relative; overflow: hidden; background: #fff; }
-        
-        /* স্মার্ট ফিল্টার (হলুদ/কমলা কন্ট্রোল) */
-        .color-filter {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 215, 0, 0.15); 
-            backdrop-filter: hue-rotate(160deg) saturate(1.4);
-            pointer-events: none; z-index: 100;
+        /* আইফ্রেম কন্টেইনার */
+        .iframe-container { 
+            flex-grow: 1; margin-top: 100px; background: #fff;
+            height: calc(100vh - 260px); position: relative;
         }
+        .scroll-locked { overflow: hidden !important; pointer-events: none; }
+        .scroll-allowed { overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
 
         iframe { width: 100%; height: 100%; border: none; }
 
-        /* ৪. বড় নেভিগেশন বার */
-        .bottom-nav {
-            height: 75px; background: #1f2c34; display: flex;
-            justify-content: space-around; align-items: center;
-            border-top: 2px solid var(--primary); z-index: 3000;
+        /* মাইনিং এনিমেশন */
+        .mining-anim {
+            width: 80px; height: 80px; border: 5px dashed var(--primary);
+            border-radius: 50%; margin: 20px auto;
+            animation: rotate 4s linear infinite;
+            display: none; /* মাইনিং শুরু হলে দেখাবে */
         }
-        .nav-item { flex: 1; text-align: center; color: #8696a0; font-size: 13px; cursor: pointer; transition: 0.3s; }
-        .nav-item i { font-size: 24px; display: block; margin-bottom: 5px; }
-        .nav-item.active-nav { color: var(--primary); transform: scale(1.1); }
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
 
-        /* ৫. ড্যাশবোর্ড কার্ড */
-        .stat-box {
-            background: linear-gradient(135deg, #121b22, #1f2c34);
-            padding: 30px; margin: 20px; border-radius: 20px;
-            text-align: center; border: 1px solid var(--primary);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        .pulse {
+            width: 10px; height: 10px; background: var(--primary);
+            border-radius: 50%; display: inline-block; margin-right: 8px;
+            box-shadow: 0 0 10px var(--primary);
+            animation: blink 1s infinite;
         }
-        .balance-text { font-size: 45px; font-weight: bold; color: var(--primary); text-shadow: 0 0 10px rgba(37,211,102,0.3); }
+        @keyframes blink { 0% { opacity: 0.2; } 50% { opacity: 1; } 100% { opacity: 0.2; } }
+
+        /* নেভিগেশন */
+        .bottom-nav {
+            height: 80px; background: #1f2c34; display: flex;
+            justify-content: space-around; align-items: center;
+            border-top: 3px solid var(--primary); position: fixed; bottom: 0; width: 100%; z-index: 2000;
+        }
+        .nav-item { flex: 1; text-align: center; color: #8696a0; font-size: 13px; cursor: pointer; }
+        .nav-item i { font-size: 26px; display: block; margin-bottom: 5px; }
+        .nav-item.active-nav { color: var(--primary); }
 
         .btn-main {
-            background: var(--primary); color: white; border: none; padding: 16px;
+            background: var(--primary); color: white; border: none; padding: 18px;
             width: 90%; border-radius: 12px; font-weight: bold; font-size: 16px;
             margin: 10px auto; display: block; cursor: pointer;
+        }
+        .stat-box {
+            background: linear-gradient(135deg, #121b22, #1f2c34);
+            padding: 30px; margin: 25px; border-radius: 25px; text-align: center; border: 2px solid var(--primary);
         }
     </style>
 </head>
 <body>
 
-<div id="loading-screen">
-    <div class="loader"></div>
-    <h3 id="load-status" style="margin-top: 20px; color: var(--yellow);">Connecting to Server...</h3>
-    <p id="load-detail" style="font-size: 12px; color: #8696a0;">Checking ID & Password</p>
-    <button id="start-btn" class="btn-main" style="display: none; width: 200px;" onclick="initApp()">শুরু করুন</button>
-</div>
+<div class="logo-mask">SECURE CLOUD NODE ACTIVATED</div>
 
-<div id="main-app" class="app-view">
+<div id="main-app" style="height: 100%;">
     
-    <div id="view-work" class="app-view active" style="height: calc(100% - 75px);">
-        <div class="logo-mask">SECURE CLOUD NODE ACTIVATED</div>
-        <div class="iframe-container">
-            <div class="color-filter"></div>
-            <iframe src="https://www.taskm4u.com/#/login" id="taskIfr" scrolling="no"></iframe>
+    <div id="view-work" class="app-view active">
+        <div id="ifr-box" class="iframe-container scroll-locked">
+            <iframe src="https://www.taskm4u.com/#/login" id="taskIfr"></iframe>
         </div>
-        <div style="background: #121b22; padding: 10px;">
+        <div style="background: #121b22; padding: 10px; padding-bottom: 90px;">
             <button class="btn-main" id="step-btn" onclick="handleStep()">লগইন করেছি, পরবর্তী ধাপ</button>
         </div>
     </div>
 
-    <div id="view-balance" class="app-view" style="height: calc(100% - 75px);">
+    <div id="view-balance" class="app-view">
         <div class="stat-box">
-            <p style="margin:0; color:#8696a0;">Mining Balance</p>
-            <div class="balance-text" id="main-bal">0.00 PT</div>
-            <p style="color:var(--primary); font-size: 12px; margin-top:10px;">● Mining Status: Active</p>
+            <div class="mining-anim" id="gear"></div>
+            <p style="color:#8696a0; margin-bottom: 5px;">Live Mined Balance</p>
+            <div style="font-size: 50px; font-weight: bold; color: var(--primary);" id="main-bal">0.00 PT</div>
+            <div id="status-tag" style="margin-top:15px; font-size: 14px; color: #8696a0;">
+                <span id="p-light"></span> <span id="p-text">System Standby</span>
+            </div>
         </div>
-        <div style="padding: 20px;">
-            <div style="display:flex; justify-content: space-between; background: #1f2c34; padding: 15px; border-radius: 10px;">
-                <span>Hash Rate</span>
-                <span style="color:var(--yellow);">32.4 GH/s</span>
+        <div style="padding: 0 25px;">
+            <div style="background: #1f2c34; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between;">
+                <span>Hashrate:</span> <span style="color:var(--yellow);" id="h-rate">0.00 GH/s</span>
             </div>
         </div>
     </div>
 
-    <div id="view-withdraw" class="app-view" style="height: calc(100% - 75px);">
-        <div class="stat-box">
-            <h3>Withdraw Points</h3>
-            <p>Minimum: 10,000 PT</p>
-            <button class="btn-main" style="background:#34495e;">Insufficient Balance</button>
-        </div>
+    <div id="view-withdraw" class="app-view">
+        <div class="stat-box"><h3>Withdraw</h3><p>Min: 10,000 PT</p></div>
     </div>
 
     <nav class="bottom-nav">
-        <div class="nav-item active-nav" onclick="showView('work', this)"><i class="fas fa-hammer"></i>Work</div>
-        <div class="nav-item" onclick="showView('balance', this)"><i class="fas fa-coins"></i>Balance</div>
-        <div class="nav-item" onclick="showView('withdraw', this)"><i class="fas fa-wallet"></i>Withdraw</div>
+        <div class="nav-item active-nav" id="n-work" onclick="showView('work')"><i class="fas fa-hammer"></i>Work</div>
+        <div class="nav-item" id="n-balance" onclick="showView('balance')"><i class="fas fa-coins"></i>Balance</div>
+        <div class="nav-item" id="n-withdraw" onclick="showView('withdraw')"><i class="fas fa-wallet"></i>Withdraw</div>
     </nav>
-
 </div>
 
 <script src="script.js"></script>
